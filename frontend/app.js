@@ -42,6 +42,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 reader.readAsDataURL(file);
             }
+            // show reset button when a file is selected
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.style.display = 'inline-block';
         } else {
             uploadTextEl.textContent = 'לחץ כאן לבחירת תמונה';
             uploadTextEl.style.color = '#718096';
@@ -49,6 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
             setStatus('');
             const preview = document.getElementById('previewThumb');
             if (preview) { preview.src = ''; preview.style.display = 'none'; }
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.style.display = 'none';
         }
     });
 
@@ -117,10 +122,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             resultImage.src = url;
             resultImage.alt = 'תמונה לאחר הסרת רקע';
+            // show result image
+            resultImage.classList.remove('hidden');
+            resultImage.classList.add('visible');
+            resultImage.setAttribute('aria-hidden', 'false');
             downloadLink.href = url;
             downloadLink.download = 'removed_bg.png';
-            downloadLink.style.display = 'inline-block';
+            downloadLink.classList.remove('hidden');
+            downloadLink.classList.add('visible');
             downloadLink.setAttribute('aria-hidden', 'false');
+            // ensure reset button is visible once result is ready
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.style.display = 'inline-block';
 
             setStatus('ההסרה הושלמה — אפשר להוריד את התמונה.', 'success');
 
@@ -187,7 +200,13 @@ document.addEventListener('DOMContentLoaded', () => {
             setStatus('');
             const preview = document.getElementById('previewThumb'); if (preview) { preview.src=''; preview.style.display='none'; }
             resultImage.src = '';
-            downloadLink.style.display = 'none';
+            resultImage.classList.remove('visible');
+            resultImage.classList.add('hidden');
+            resultImage.setAttribute('aria-hidden', 'true');
+            downloadLink.classList.remove('visible');
+            downloadLink.classList.add('hidden');
+            downloadLink.setAttribute('aria-hidden', 'true');
+            resetBtn.style.display = 'none';
             const pw = document.querySelector('.progress-wrapper'); if (pw) pw.style.display='none';
         });
     }

@@ -208,6 +208,10 @@ header p {
     border-radius: 10px;
 }
 
+/* show/hide utilities for result image */
+.result-img.hidden { display: none; opacity: 0; pointer-events: none; }
+.result-img.visible { display: block; opacity: 1; transition: opacity 240ms ease, transform 240ms ease; transform: translateY(0); }
+
 /* עיצוב כפתור ההורדה */
 .download-btn {
     display: inline-block;
@@ -225,6 +229,10 @@ header p {
 .download-btn:hover {
     background-color: #38a169;
 }
+
+/* Hidden/visible utility for download button */
+.download-btn.hidden { display: none; opacity: 0; pointer-events: none; }
+.download-btn.visible { display: inline-block; opacity: 1; pointer-events: auto; transition: opacity 220ms ease, transform 220ms ease; transform: translateY(0); }
 
 /* Responsive tweaks */
 @media (max-width: 520px) {

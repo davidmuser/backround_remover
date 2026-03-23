@@ -28,7 +28,7 @@
         <div class="action-section">
             <div class="controls">
                 <button id="removeBtn" aria-describedby="status" class="primary">הסר רקע</button>
-                <button id="resetBtn" class="secondary" aria-label="נקה">נקה</button>
+                <button id="resetBtn" class="secondary" aria-label="נקה" style="display:none">נקה</button>
             </div>
             <div id="loader" class="loader" style="display: none;" aria-hidden="true">מעבד את התמונה...</div>
             <div class="progress-wrapper" style="display:none;" aria-hidden="true">
@@ -40,9 +40,9 @@
 
         <div class="result-section">
             <div class="result-box" id="resultContainer">
-                <img id="resultImage" class="result-img" alt="התוצאה תופיע כאן">
+                <img id="resultImage" class="result-img hidden" alt="התוצאה תופיע כאן" aria-hidden="true">
             </div>
-            <a id="downloadLink" class="download-btn" style="display: none;" aria-hidden="true">
+            <a id="downloadLink" class="download-btn hidden" aria-hidden="true">
                 <!-- download icon -->
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                     <path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
