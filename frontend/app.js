@@ -13,7 +13,7 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
     formData.append('file', imageInput.files[0]);
 
     // שליחת התמונה לשרת
-    const response = await fetch('http://127.0.0.1:8000/remove-bg', {
+    const response = await fetch('https://backroundremover-production.up.railway.app/remove-bg', {
         method: 'POST',
         body: formData
     });
