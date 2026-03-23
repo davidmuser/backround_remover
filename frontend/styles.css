@@ -1,28 +1,155 @@
+/* הגדרות גלובליות ופונטים */
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Heebo', sans-serif; /* פונט עברי מודרני */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f4f8; /* צבע רקע עדין */
+    color: #2d3748;
+}
+
+.main-container {
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05); /* צל עדין */
+    width: 90%;
+    max-width: 600px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #4a5568;
+}
+
+header p {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 30px;
+}
+
+/* עיצוב תיבת העלאה */
+.upload-section {
+    margin-bottom: 30px;
+}
+
+.upload-box {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+    border: 3px dashed #cbd5e0;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #fdfdfd;
+    transition: all 0.3s ease;
+}
+
+.upload-box:hover {
+    border-color: #4299e1; /* צבע הדגשה כחול */
+    background-color: #f3f8ff;
+}
+
+.upload-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+.upload-text {
+    font-size: 1.1rem;
+    color: #718096;
+}
+
+/* הסתרת כפתור העלאה המקורי של הדפדפן */
+#imageInput {
+    display: none;
+}
+
+/* עיצוב כפתור ההסרה */
+.action-section {
+    margin-bottom: 30px;
+}
+
+#removeBtn {
+    background-color: #4299e1; /* כחול מודרני */
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    box-shadow: 0 4px 6px rgba(66, 153, 225, 0.2);
+}
+
+#removeBtn:hover {
+    background-color: #3182ce;
+}
+
+#removeBtn:active {
+    transform: translateY(1px); /* אפקט לחיצה */
+}
+
+/* עיצוב הטעינה (Loader) */
+.loader {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-top: 15px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.6; }
+    50% { opacity: 1; }
+    100% { opacity: 0.6; }
+}
+
+/* עיצוב התוצאה */
+.result-section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 50px;
-    background-color: #f4f4f9;
 }
 
-.result {
+.result-box {
     margin-top: 20px;
-}
-
-img {
+    width: 100%;
     max-width: 500px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: #edf2f7; /* רקע אפור עדין להדגשת השקיפות */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-#downloadLink {
-    display: none; /* נציג אותו רק אחרי שהתמונה תהיה מוכנה */
-    margin-top: 15px;
-    text-decoration: none;
+.result-img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+/* עיצוב כפתור ההורדה */
+.download-btn {
+    display: inline-block;
+    background-color: #48bb78; /* ירוק מודרני */
     color: white;
-    background-color: #007bff;
-    padding: 10px 20px;
-    border-radius: 5px;
+    text-decoration: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+.download-btn:hover {
+    background-color: #38a169;
 }

@@ -2,34 +2,46 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
     const imageInput = document.getElementById('imageInput');
     const resultImage = document.getElementById('resultImage');
     const downloadLink = document.getElementById('downloadLink');
+    const removeBtn = document.getElementById('removeBtn');
+    const loader = document.getElementById('loader');
 
     if (imageInput.files.length === 0) {
-        alert("Please select an image first!");
+        alert("אנא בחר תמונה תחילה!");
         return;
     }
 
     const formData = new FormData();
-    // חשוב מאוד: השם 'file' חייב להתאים למה שכתבנו ב-Python ב-main.py
     formData.append('file', imageInput.files[0]);
 
-    // שליחת התמונה לשרת
-    const response = await fetch('https://backroundremover-production.up.railway.app', {
-        method: 'POST',
-        body: formData
-    });
+    // הפעלת מצב טעינה (הסתרת כפתור, הצגת הודעה)
+    removeBtn.style.display = 'none';
+    loader.style.display = 'block';
 
-    if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        
-        // הצגת התמונה באתר
-        resultImage.src = url;
-        
-        // הגדרת לינק להורדה
-        downloadLink.href = url;
-        downloadLink.download = 'removed_bg.png';
-        downloadLink.style.display = 'block';
-    } else {
-        alert("Something went wrong with the server.");
+    try {
+        const response = await fetch('https://backroundremover-production.up.railway.app', { // עדכן ללינק שלך!
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            
+            // הצגת התמונה באתר
+            resultImage.src = url;
+            
+            // הגדרת לינק להורדה
+            downloadLink.href = url;
+            downloadLink.download = 'removed_bg.png';
+            downloadLink.style.display = 'block';
+        } else {
+            alert("משהו השתבש עם השרת. אנא נסה שוב.");
+        }
+    } catch (error) {
+        alert("שגיאת תקשורת. ודא שהשרת ב-Railway רץ.");
+    } finally {
+        // ביטול מצב טעינה (החזרת הכפתור, הסתרת ההודעה)
+        loader.style.display = 'none';
+        removeBtn.style.display = 'inline-block';
     }
 });
