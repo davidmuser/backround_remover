@@ -1,3 +1,18 @@
+// תוספת חדשה: מאזין לשינוי בבחירת הקובץ - כדי להראות למשתמש שהתמונה נבחרה בהצלחה!
+document.getElementById('imageInput').addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    const uploadText = document.querySelector('.upload-text');
+    if (file) {
+        uploadText.textContent = `תמונה נבחרה: ${file.name}`;
+        uploadText.style.color = '#48bb78'; // צובע את הטקסט לירוק
+        uploadText.style.fontWeight = 'bold';
+    } else {
+        uploadText.textContent = 'לחץ כאן לבחירת תמונה';
+        uploadText.style.color = '#718096';
+        uploadText.style.fontWeight = 'normal';
+    }
+});
+
 document.getElementById('removeBtn').addEventListener('click', async () => {
     const imageInput = document.getElementById('imageInput');
     const resultImage = document.getElementById('resultImage');
@@ -13,12 +28,12 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
     const formData = new FormData();
     formData.append('file', imageInput.files[0]);
 
-    // הפעלת מצב טעינה (הסתרת כפתור, הצגת הודעה)
     removeBtn.style.display = 'none';
     loader.style.display = 'block';
 
     try {
-        const response = await fetch('https://backroundremover-production.up.railway.app/remove-bg', {
+        // הנה התיקון הקריטי! ודאנו ש- /remove-bg נמצא בסוף הכתובת
+        const response = await fetch('https://backroundremover-production.up.railway.app/remove-bg', { 
             method: 'POST',
             body: formData
         });
@@ -27,20 +42,16 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             
-            // הצגת התמונה באתר
             resultImage.src = url;
-            
-            // הגדרת לינק להורדה
             downloadLink.href = url;
             downloadLink.download = 'removed_bg.png';
             downloadLink.style.display = 'block';
         } else {
-            alert("משהו השתבש עם השרת. אנא נסה שוב.");
+            alert("שגיאה מהשרת: לא ניתן היה להסיר את הרקע. נסה שוב.");
         }
     } catch (error) {
-        alert("שגיאת תקשורת. ודא שהשרת ב-Railway רץ.");
+        alert("שגיאת תקשורת. ודא שהכתובת מדויקת והשרת באוויר.");
     } finally {
-        // ביטול מצב טעינה (החזרת הכפתור, הסתרת ההודעה)
         loader.style.display = 'none';
         removeBtn.style.display = 'inline-block';
     }
