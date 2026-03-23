@@ -18,7 +18,7 @@ document.getElementById('removeBtn').addEventListener('click', async () => {
     loader.style.display = 'block';
 
     try {
-        const response = await fetch('https://backroundremover-production.up.railway.app', { // עדכן ללינק שלך!
+        const response = await fetch('https://backroundremover-production.up.railway.app/remove-bg', {
             method: 'POST',
             body: formData
         });
