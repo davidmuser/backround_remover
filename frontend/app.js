@@ -32,11 +32,23 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadTextEl.style.color = '#48bb78';
             uploadTextEl.style.fontWeight = 'bold';
             setStatus('קובץ מוכן לשליחה', 'success');
+            // show small preview thumbnail in upload box
+            const preview = document.getElementById('previewThumb');
+            if (preview) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
         } else {
             uploadTextEl.textContent = 'לחץ כאן לבחירת תמונה';
             uploadTextEl.style.color = '#718096';
             uploadTextEl.style.fontWeight = 'normal';
             setStatus('');
+            const preview = document.getElementById('previewThumb');
+            if (preview) { preview.src = ''; preview.style.display = 'none'; }
         }
     });
 
@@ -61,11 +73,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const formData = new FormData();
         formData.append('file', file);
 
-        // Enter loading state
-        removeBtn.disabled = true;
-        loader.style.display = 'block';
-        loader.setAttribute('aria-hidden', 'false');
-        setStatus('שולח קובץ לשרת...', 'info');
+    // Enter loading state
+    removeBtn.disabled = true;
+    loader.style.display = 'block';
+    loader.setAttribute('aria-hidden', 'false');
+    // show fake progress bar animation to indicate activity
+    const progressWrapper = document.querySelector('.progress-wrapper');
+    const progressFill = document.querySelector('.progress-fill');
+    if (progressWrapper && progressFill) { progressWrapper.style.display = 'block'; progressFill.style.width = '6%'; }
+    setStatus('שולח קובץ לשרת...', 'info');
 
         try {
             const response = await fetch(REMOVE_ENDPOINT, { method: 'POST', body: formData });
@@ -86,6 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const blob = await response.blob();
+
+            // animate progress to completion (fake, since fetch doesn't give request progress)
+            if (progressFill) { progressFill.style.width = '90%'; }
 
             // Cleanup previous URL
             if (lastObjectUrl) {
@@ -113,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, 1000);
             }, { once: true });
 
+            if (progressFill) { progressFill.style.width = '100%'; setTimeout(() => { const pw = document.querySelector('.progress-wrapper'); if (pw) pw.style.display='none'; }, 300); }
+
         } catch (err) {
             console.error('Network error', err);
             setStatus('שגיאת תקשורת. ודא שהשרת זמין ונסה שוב.', 'error');
@@ -120,6 +141,54 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.style.display = 'none';
             loader.setAttribute('aria-hidden', 'true');
             removeBtn.disabled = false;
+            // hide progress if still visible
+            const pw = document.querySelector('.progress-wrapper'); if (pw) pw.style.display='none';
         }
     });
+
+    // Drag & drop support for the upload box
+    const uploadBox = document.getElementById('uploadBox');
+    if (uploadBox) {
+        ['dragenter','dragover'].forEach(evt => uploadBox.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); uploadBox.classList.add('dragover'); }));
+        ['dragleave','drop','dragend'].forEach(evt => uploadBox.addEventListener(evt, (e) => { e.preventDefault(); e.stopPropagation(); uploadBox.classList.remove('dragover'); }));
+        uploadBox.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer; if (!dt) return;
+            const files = dt.files; if (!files || files.length === 0) return;
+            // assign files to the hidden input so normal flow works
+            try {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(files[0]);
+                imageInput.files = dataTransfer.files;
+                // trigger change event
+                imageInput.dispatchEvent(new Event('change'));
+            } catch (err) {
+                // fallback: just show preview directly
+                const file = files[0];
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const preview = document.getElementById('previewThumb');
+                    if (preview) { preview.src = ev.target.result; preview.style.display='block'; }
+                    uploadTextEl.textContent = `תמונה נבחרה: ${file.name}`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Reset/Clear UI
+    const resetBtn = document.getElementById('resetBtn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            // clear inputs and UI
+            try { imageInput.value = ''; imageInput.files = null; } catch(e) { imageInput.value = ''; }
+            uploadTextEl.textContent = 'לחץ כאן לבחירת תמונה';
+            uploadTextEl.style.color = '#718096';
+            uploadTextEl.style.fontWeight = 'normal';
+            setStatus('');
+            const preview = document.getElementById('previewThumb'); if (preview) { preview.src=''; preview.style.display='none'; }
+            resultImage.src = '';
+            downloadLink.style.display = 'none';
+            const pw = document.querySelector('.progress-wrapper'); if (pw) pw.style.display='none';
+        });
+    }
 });

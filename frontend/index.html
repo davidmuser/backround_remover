@@ -16,16 +16,24 @@
         </header>
 
         <div class="upload-section">
-            <label for="imageInput" class="upload-box">
+            <label for="imageInput" class="upload-box" id="uploadBox" tabindex="0">
                 <span class="upload-icon">⬆️</span>
-                <span class="upload-text">לחץ כאן לבחירת תמונה</span>
+                <span class="upload-text">לחץ כאן לבחירת תמונה או גרור לכאן</span>
                 <input type="file" id="imageInput" accept="image/*">
+                <!-- thumbnail preview inside the upload box -->
+                <img id="previewThumb" class="preview-thumb" alt="תצוגה מקדימה" style="display:none">
             </label>
         </div>
 
         <div class="action-section">
-            <button id="removeBtn" aria-describedby="status">הסר רקע</button>
+            <div class="controls">
+                <button id="removeBtn" aria-describedby="status" class="primary">הסר רקע</button>
+                <button id="resetBtn" class="secondary" aria-label="נקה">נקה</button>
+            </div>
             <div id="loader" class="loader" style="display: none;" aria-hidden="true">מעבד את התמונה...</div>
+            <div class="progress-wrapper" style="display:none;" aria-hidden="true">
+                <div id="progressBar" class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+            </div>
             <!-- inline status messages replace alert() for better UX and accessibility -->
             <div id="status" class="status" role="status" aria-live="polite"></div>
         </div>
@@ -34,7 +42,15 @@
             <div class="result-box" id="resultContainer">
                 <img id="resultImage" class="result-img" alt="התוצאה תופיע כאן">
             </div>
-            <a id="downloadLink" class="download-btn" style="display: none;">הורד תמונה (PNG)</a>
+            <a id="downloadLink" class="download-btn" style="display: none;" aria-hidden="true">
+                <!-- download icon -->
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M12 3v12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M19 14l-7 7-7-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                הורד תמונה (PNG)
+            </a>
         </div>
     </div>
     <!-- Optional: set BACKEND_URL here for development or overrides -->
