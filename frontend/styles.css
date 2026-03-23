@@ -105,6 +105,22 @@ header p {
     animation: pulse 1.5s infinite;
 }
 
+/* inline status messages (errors / info) */
+.status {
+    margin-top: 12px;
+    min-height: 1.2em; /* reserve space to avoid layout shift */
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.status.error {
+    color: #c53030; /* red */
+}
+
+.status.success {
+    color: #2f855a; /* green */
+}
+
 @keyframes pulse {
     0% { opacity: 0.6; }
     50% { opacity: 1; }

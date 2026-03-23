@@ -24,8 +24,10 @@
         </div>
 
         <div class="action-section">
-            <button id="removeBtn">הסר רקע</button>
-            <div id="loader" class="loader" style="display: none;">מעבד את התמונה...</div>
+            <button id="removeBtn" aria-describedby="status">הסר רקע</button>
+            <div id="loader" class="loader" style="display: none;" aria-hidden="true">מעבד את התמונה...</div>
+            <!-- inline status messages replace alert() for better UX and accessibility -->
+            <div id="status" class="status" role="status" aria-live="polite"></div>
         </div>
 
         <div class="result-section">
@@ -35,6 +37,11 @@
             <a id="downloadLink" class="download-btn" style="display: none;">הורד תמונה (PNG)</a>
         </div>
     </div>
+    <!-- Optional: set BACKEND_URL here for development or overrides -->
+    <script>
+        // Change this to your local backend when testing, e.g. http://localhost:8000
+        window.BACKEND_URL = 'https://backroundremover-production.up.railway.app';
+    </script>
     <script src="app.js"></script>
 </body>
 </html>

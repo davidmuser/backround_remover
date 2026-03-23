@@ -1,58 +1,125 @@
-// תוספת חדשה: מאזין לשינוי בבחירת הקובץ - כדי להראות למשתמש שהתמונה נבחרה בהצלחה!
-document.getElementById('imageInput').addEventListener('change', (event) => {
-    const file = event.target.files[0];
-    const uploadText = document.querySelector('.upload-text');
-    if (file) {
-        uploadText.textContent = `תמונה נבחרה: ${file.name}`;
-        uploadText.style.color = '#48bb78'; // צובע את הטקסט לירוק
-        uploadText.style.fontWeight = 'bold';
-    } else {
-        uploadText.textContent = 'לחץ כאן לבחירת תמונה';
-        uploadText.style.color = '#718096';
-        uploadText.style.fontWeight = 'normal';
-    }
-});
-
-document.getElementById('removeBtn').addEventListener('click', async () => {
+// Frontend behavior: defensive and accessible
+document.addEventListener('DOMContentLoaded', () => {
     const imageInput = document.getElementById('imageInput');
+    const uploadTextEl = document.querySelector('.upload-text');
+    const removeBtn = document.getElementById('removeBtn');
     const resultImage = document.getElementById('resultImage');
     const downloadLink = document.getElementById('downloadLink');
-    const removeBtn = document.getElementById('removeBtn');
     const loader = document.getElementById('loader');
+    const statusEl = document.getElementById('status');
 
-    if (imageInput.files.length === 0) {
-        alert("אנא בחר תמונה תחילה!");
+    const backendBase = (window.BACKEND_URL && window.BACKEND_URL.trim()) || 'https://backroundremover-production.up.railway.app';
+    const REMOVE_ENDPOINT = backendBase.replace(/\/$/, '') + '/remove-bg';
+
+    if (!imageInput || !uploadTextEl || !removeBtn || !resultImage || !downloadLink || !loader || !statusEl) {
+        console.error('Missing required DOM elements for frontend app');
         return;
     }
 
-    const formData = new FormData();
-    formData.append('file', imageInput.files[0]);
+    // Helper to set status message (info / error / success)
+    function setStatus(message, type = 'info') {
+        statusEl.textContent = message || '';
+        statusEl.classList.remove('error', 'success');
+        if (type === 'error') statusEl.classList.add('error');
+        if (type === 'success') statusEl.classList.add('success');
+    }
 
-    removeBtn.style.display = 'none';
-    loader.style.display = 'block';
+    // Update upload label when a file is chosen
+    imageInput.addEventListener('change', (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (file) {
+            uploadTextEl.textContent = `תמונה נבחרה: ${file.name}`;
+            uploadTextEl.style.color = '#48bb78';
+            uploadTextEl.style.fontWeight = 'bold';
+            setStatus('קובץ מוכן לשליחה', 'success');
+        } else {
+            uploadTextEl.textContent = 'לחץ כאן לבחירת תמונה';
+            uploadTextEl.style.color = '#718096';
+            uploadTextEl.style.fontWeight = 'normal';
+            setStatus('');
+        }
+    });
 
-    try {
-        // הנה התיקון הקריטי! ודאנו ש- /remove-bg נמצא בסוף הכתובת
-        const response = await fetch('https://backroundremover-production.up.railway.app/remove-bg', { 
-            method: 'POST',
-            body: formData
-        });
+    // Track last object URL for cleanup
+    let lastObjectUrl = null;
 
-        if (response.ok) {
+    removeBtn.addEventListener('click', async () => {
+        setStatus('');
+
+        if (!imageInput.files || imageInput.files.length === 0) {
+            setStatus('אנא בחר תמונה תחילה!', 'error');
+            return;
+        }
+
+        const file = imageInput.files[0];
+        const MAX_BYTES = 10 * 1024 * 1024; // 10MB
+        if (file.size > MAX_BYTES) {
+            setStatus('הקובץ גדול מדי. נא להעלות קובץ עד 10MB.', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        // Enter loading state
+        removeBtn.disabled = true;
+        loader.style.display = 'block';
+        loader.setAttribute('aria-hidden', 'false');
+        setStatus('שולח קובץ לשרת...', 'info');
+
+        try {
+            const response = await fetch(REMOVE_ENDPOINT, { method: 'POST', body: formData });
+
+            if (!response.ok) {
+                const text = await response.text().catch(() => '');
+                console.error('Server error', response.status, text);
+                setStatus('שגיאה מהשרת: לא ניתן היה להסיר את הרקע. נסה שוב.', 'error');
+                return;
+            }
+
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.startsWith('image/')) {
+                const txt = await response.text().catch(() => '');
+                console.error('Unexpected response', contentType, txt);
+                setStatus('השרת החזיר תשובה לא תקינה. נסה שוב.', 'error');
+                return;
+            }
+
             const blob = await response.blob();
+
+            // Cleanup previous URL
+            if (lastObjectUrl) {
+                try { URL.revokeObjectURL(lastObjectUrl); } catch (e) { /* ignore */ }
+                lastObjectUrl = null;
+            }
+
             const url = URL.createObjectURL(blob);
-            
+            lastObjectUrl = url;
+
             resultImage.src = url;
+            resultImage.alt = 'תמונה לאחר הסרת רקע';
             downloadLink.href = url;
             downloadLink.download = 'removed_bg.png';
-            downloadLink.style.display = 'block';
-        } else {
-            alert("שגיאה מהשרת: לא ניתן היה להסיר את הרקע. נסה שוב.");
+            downloadLink.style.display = 'inline-block';
+            downloadLink.setAttribute('aria-hidden', 'false');
+
+            setStatus('ההסרה הושלמה — אפשר להוריד את התמונה.', 'success');
+
+            // Revoke the object URL shortly after download to free memory
+            downloadLink.addEventListener('click', () => {
+                setTimeout(() => {
+                    try { URL.revokeObjectURL(url); } catch (e) { /* ignore */ }
+                    if (lastObjectUrl === url) lastObjectUrl = null;
+                }, 1000);
+            }, { once: true });
+
+        } catch (err) {
+            console.error('Network error', err);
+            setStatus('שגיאת תקשורת. ודא שהשרת זמין ונסה שוב.', 'error');
+        } finally {
+            loader.style.display = 'none';
+            loader.setAttribute('aria-hidden', 'true');
+            removeBtn.disabled = false;
         }
-    } catch (error) {
-        alert("שגיאת תקשורת. ודא שהכתובת מדויקת והשרת באוויר.");
-    } finally {
-        loader.style.display = 'none';
-        removeBtn.style.display = 'inline-block';
-    }
+    });
 });
