@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('loader');
     const statusEl = document.getElementById('status');
 
-    const backendBase = (window.BACKEND_URL && window.BACKEND_URL.trim()) || 'https://backroundremover-production.up.railway.app';
+    const backendBase = (window.BACKEND_URL && window.BACKEND_URL.trim()) || 'https://davemb-background-remover.hf.space';
     const REMOVE_ENDPOINT = backendBase.replace(/\/$/, '') + '/remove-bg';
 
     if (!imageInput || !uploadTextEl || !removeBtn || !resultImage || !downloadLink || !loader || !statusEl) {
